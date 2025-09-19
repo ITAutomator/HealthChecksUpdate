@@ -2,7 +2,7 @@
 <img src="https://raw.githubusercontent.com/ITAutomator/Assets/main/HealthChecksUpdate/WebBadge.png" alt="HealthChecksUpdate" width="200"/>  
 
 Download: [ZIP](https://github.com/ITAutomator/HealthChecksUpdate/archive/refs/heads/main.zip) (or click the green *Code* button (above) and click *Download Zip*)    
-Website: [WWW](https://www.itautomator.com/HealthChecksUpdate/)  
+Website: [WWW](https://www.itautomator.com/healthchecks-update/)  
 
 Use HealthChecksUpdate.ps1 in your scripts to update your HealthChecks.io database from an agent computer.  
 You can set up agents to check in periodically with the server to indicate they are still operational.  
