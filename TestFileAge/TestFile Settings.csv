@@ -1,0 +1,29 @@
+Name,Value
+last_test_time,4/8/2025 9:49
+launch_param1_name,mode
+launch_param1_value,File
+launch_param2_name,create
+launch_param2_value,TRUE
+launch_param3_name,hc_test
+launch_param3_value,TestFile-%TestName%
+launch_param4_name,hc_msg
+launch_param4_value,File %TestFile% From TestFile
+launch_param5_name,hc_action
+launch_param5_value,%TestResult%
+launch_param6_name,
+launch_param6_value,
+launch_param7_name,
+launch_param7_value,
+launch_param8_name,
+launch_param8_value,
+launch_param9_name,
+launch_param9_value,
+launch_ps1,C:\HealthChecksUpdate\HealthChecksUpdate.ps1
+launcher_active,TRUE
+launcher_hidewindow,FALSE
+launcher_on_fail,FALSE
+launcher_on_ok,TRUE
+launcher_onlyonstatuschange,FALSE
+File_every_n_mins,10
+SettingsFileCreatedBy,PC-JS2\JasonSimotas
+SettingsFileCreatedDate,4/8/2025
