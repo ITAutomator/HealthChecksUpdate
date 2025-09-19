@@ -14,10 +14,9 @@ The agent PC should already have C:\HealthChecksUpdate\HealthChecksUpdate.ps1 in
 
 ## Agent setup steps
 
-- Copy this folder somewhere local to the machine
-C:\HealthChecks\TestFileAge
+- Copy this folder somewhere local to the machine  
 
-- Delete the Log and Settings and CSV files (if found) to prompt for new values
+C:\HealthChecks\TestFileAge  
 
 | File                     | Description           |
 | ------------------------ | --------------------- |
@@ -25,13 +24,15 @@ C:\HealthChecks\TestFileAge
 | TestFileAge Settings.csv  | Settings              |
 | TestFileAge.csv           | List of folders /files to look for |
 
+- Delete the Log and Settings and CSV files (if found) to prompt for new values
 - Run the program interactively (once) to setup the CSVs
 Double-click TestFileAge.cmd  
 You will be prompted to set up the .CSV settings file
 
-- Create a list of hosts to ping
-   TestFileAge.csv
-Columns after Status-Current can be cleared / ignored, they are set by the program.
+- Create a list of hosts to ping (TestFileAge.csv). Columns after Status-Current can be cleared / ignored, they are set by the program.
+
+C:\HealthChecks\TestFileAge\TestFileAge.csv
+
 | Column                   | Description                                |
 | ------------------------ | ------------------------------------------ |
 | TestName                 |  Log File Test (no spaces)                 |
@@ -46,8 +47,10 @@ Columns after Status-Current can be cleared / ignored, they are set by the progr
 | Disabled                 |  FALSE, disables this test                 |
 | Silenced                 |  FALSE, Supress launcher for this test     |
 
-- Inspect and change the settings
-   TestFileAge Settings.csv
+- Inspect and change the settings  
+
+C:\HealthChecks\TestFileAge\TestFileAge Settings.csv
+
 | Setting                     | Description (first mentioned is default)                      |
 | --------------------------- | ------------------------------------------------------------- |
 | ping_every_n_mins           | how often to ping (if loop is specified)                      |
@@ -60,7 +63,8 @@ Columns after Status-Current can be cleared / ignored, they are set by the progr
 | launch_param1_name          | name of arguemnt (1-9) (without the '-')                      |
 | launch_param1_value         | value of argument (1-9) %TestName% %TestResult% can be used   |
 
-- Run the tests
+- Run the tests using one of these commands
+
 | Method                      | Description                                             |
 | --------------------------- | ------------------------------------------------------- |
 | TestFileAge.cmd              | Launch with mode -loop                                  |
