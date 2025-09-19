@@ -1,16 +1,16 @@
 # TestFileAge
 
-Use TestFileAge.ps1 to test a list of Folder / File Specs to look for a recently modified file (TestFileAge.csv).
-This would be commonly used to see if a log file was getting updated or a recent backup file exists.
-Note that this tests the modified date of a file, not the contents of the file.
-TestFileAge.ps1 will report the status and call an external .ps1 file with the results of the ping.
-TestFileAge is designed to work with a HealthChecks server (Working with HealthChecks) but it can be used to launch anything.
+Use TestFileAge.ps1 to test a list of Folder / File Specs to look for a recently modified file (TestFileAge.csv).  
+This would be commonly used to see if a log file was getting updated or a recent backup file exists.  
+Note that this tests the modified date of a file, not the contents of the file.  
+TestFileAge.ps1 will report the status and call an external .ps1 file with the results of the ping.  
+TestFileAge is designed to work with a HealthChecks server (Working with HealthChecks) but it can be used to launch anything.  
 
 ## Server pre-requisites
 
-You will need a working HealthChecks server (see <https://healthchecks.io> for more info)
-You will need a suitable agent PC to run the Task Scheduler
-The agent PC should already have C:\HealthChecksUpdate\HealthChecksUpdate.ps1 installed and operational (see Readme in that folder)
+You will need a working HealthChecks server (see <https://healthchecks.io> for more info)  
+You will need a suitable agent PC to run the Task Scheduler  
+The agent PC should already have C:\HealthChecksUpdate\HealthChecksUpdate.ps1 installed and operational (see Readme in that folder)  
 
 ## Agent setup steps
 
@@ -18,8 +18,8 @@ The agent PC should already have C:\HealthChecksUpdate\HealthChecksUpdate.ps1 in
 
 C:\HealthChecks\TestFileAge  
 
-| File                     | Description           |
-| ------------------------ | --------------------- |
+| File                      | Description           |
+| ------------------------- | --------------------- |
 | TestFileAge Log.txt       | Log of activity       |
 | TestFileAge Settings.csv  | Settings              |
 | TestFileAge.csv           | List of folders /files to look for |
@@ -65,31 +65,31 @@ C:\HealthChecks\TestFileAge\TestFileAge Settings.csv
 
 - Run the tests using one of these commands
 
-| Method                      | Description                                             |
-| --------------------------- | ------------------------------------------------------- |
+| Method                       | Description                                             |
+| ---------------------------- | ------------------------------------------------------  |
 | TestFileAge.cmd              | Launch with mode -loop                                  |
 | TestFileAge Scheduled.cmd    | Launch with mode -once                                  |
 | TestFileAge.ps1 -mode once   | From a powershell script (loops every n minutes)        |
 | TestFileAge.ps1 -mode loop   | List of hosts to ping                                   |
 
-Note: It's better to use Task Scheduler (than mode -loop) for testing every n minutes.
-Task Scheduler runs as a background service, survives reboots, and will be more reliable.
+Note: It's better to use Task Scheduler (than mode -loop) for testing every n minutes.  
+Task Scheduler runs as a background service, survives reboots, and will be more reliable.  
 
 ## Working with HealthChecks
 
-TestFileAge.ps1 was created to run with HealthChecksUpdate.ps1, and the default settings call it at C:\HealthChecksUpdate\HealthChecksUpdate.ps1
-See the read.me of that project for more information
+TestFileAge.ps1 was created to run with HealthChecksUpdate.ps1, and the default settings call it at C:\HealthChecksUpdate\HealthChecksUpdate.ps1  
+See the read.me of that project for more information  
 
 - Make sure the HealthChecks site reflects the test results as they are pinged
 Click on the test and adjust the Period and Grace Period
 
 - Windows Task Scheduler
-It should be run as task scheduler service periodically to report each result to HealthChecks using HealthChecksUpdate.ps1.
-Open Task Scheduler and import the .xml file
-Rename the task to [HealthChecks TestFileAge]
+It should be run as task scheduler service periodically to report each result to HealthChecks using HealthChecksUpdate.ps1.  
+Open Task Scheduler and import the .xml file  
+Rename the task to [HealthChecks TestFileAge]  
 
 - How it works / notes.
-With HealthChecksUpdate.ps1 as the launcher, every ping calls the launcher, not just when the status changes, so that the website recognizes the keep-alive state.
-Conversely, failures are supressed and do not call the launcher.  This allows the website's natural grace period to work instead of immediately signaling failure.
-This is appropriate where momentary outages (reboots, ISP blips) are permissable, to prevent status flapping.
-New sites added to the TestFileAge.csv are automatically added to the HealthChecks website (via the -create switch)
+With HealthChecksUpdate.ps1 as the launcher, every ping calls the launcher, not just when the status changes, so that the website recognizes the keep-alive state.  
+Conversely, failures are supressed and do not call the launcher.  This allows the website's natural grace period to work instead of immediately signaling failure.  
+This is appropriate where momentary outages (reboots, ISP blips) are permissable, to prevent status flapping.  
+New sites added to the TestFileAge.csv are automatically added to the HealthChecks website (via the -create switch)  
