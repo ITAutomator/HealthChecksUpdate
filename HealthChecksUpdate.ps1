@@ -23,7 +23,12 @@ Function HealthChecksPing
         , [string] $hc_msg     = ""     # log message to attach
         , [string] $hc_action  = "OK"   # action: OK,fail,start,log
         , [Switch] $Create     = $false # Create test
-        )  
+        )
+    # The possible protocols are
+    # [System.Enum]::GetNames([System.Net.SecurityProtocolType]) are one of SystemDefault, Ssl3, Tls, Tls11, Tls12, Tls13
+    # Add by using -bor operand
+    # For Invoke-RestMethod calls, your system SecurityProtocol may have to have a match with the website
+    [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor [System.Net.SecurityProtocolType]::Tls12
     # base uri
     $uri = $hc_url.TrimEnd("/")
     # action
@@ -34,35 +39,12 @@ Function HealthChecksPing
     else {Write-Warning "Invalid action: $($hc_action)";exit 1}
     # create
     If($Create ) {$uri += '?create=1'}
+
     $irmArguments = @{
         Uri        = $uri
         TimeoutSec = 10
     }
-    # Your system SecurityProtocol may have to have a match with the website
-    # [System.Net.ServicePointManager]::SecurityProtocol
-    # The possible protocols are
-    # [System.Enum]::GetNames([System.Net.SecurityProtocolType]) are one of SystemDefault, Ssl3, Tls, Tls11, Tls12, Tls13
-    # Add by using -bor operand
-    # [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor [System.Net.SecurityProtocolType]::Tls12
-    try
-    {
-        if($null -ne $hc_msg)
-        {
-            # See https://healthchecks.io/docs/attaching_logs/
-            $result = Invoke-RestMethod -Method Post -Body $hc_msg @irmArguments
-        }
-        else
-        {
-            $result = Invoke-RestMethod @irmArguments
-        }
-        $err_msg = ""
-    }
-    catch
-    {   
-        Write-Host "(Retrying with TLS 1.2)"
-        [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor [System.Net.SecurityProtocolType]::Tls12
-    }
-    try
+    Try
     {
         if($null -ne $hc_msg)
         {
@@ -92,7 +74,64 @@ Function SlugNameCleanUp ($hc_slug="")
     $hc_slug = $hc_slug.Replace(".","-")
     $hc_slug = $hc_slug.Replace("\","_")
     $hc_slug = $hc_slug.Replace("/","_")
+    $hc_slug = $hc_slug.ToLower()
     Return $hc_slug
+}
+
+Function TestHealthCheckCreate
+{
+    param(
+        [string]$BaseUrl     = "https://healthchecks.rethinkits16.synology.me",
+        [string]$ApiKey      = "TrPwgKiB63pS_5f97yNtFz9fFFJIOWio",
+        [string]$CheckName   = "MyTestCheck2",
+        [string]$Description = "Test check created by PowerShell",
+        [int]$TimeoutSeconds = 6*60*60,   # 6 hours
+        [int]$GraceSeconds   = 10*60       # 10 minutes
+    )
+    # For Invoke-RestMethod calls, your system SecurityProtocol may have to have a match with the website
+    [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor [System.Net.SecurityProtocolType]::Tls12
+   
+    # append a / if needed
+    if (-not $BaseUrl.endswith("/")) {$BaseUrl += "/"}
+    $ApiUrl = $BaseUrl + "api/v3/checks/"
+    # Build headers with API key
+    $Headers = @{
+        "X-Api-Key" = $ApiKey
+        "Content-Type" = "application/json"
+    }
+    # Step 1: Check if the check already exists
+    try {
+        $allChecks = Invoke-RestMethod -Uri $ApiUrl -Headers $Headers -Method GET
+    }
+    catch {
+        # show error
+        Write-Host "Couldn't connect to HealthChecks server. Check your settings."
+        Write-Host "Error: $($_.Exception.Message)"
+        Write-Host $_.ToString()
+        start-sleep -Seconds 5
+        exit
+    }
+    $check = $allChecks.checks | Where-Object { $_.name -eq $CheckName }
+    if ($check) {
+        Return $check
+    }
+    else {
+        $body = @{
+            name        = $CheckName
+            slug        = SlugNameCleanUp $CheckName
+            desc        = $Description
+            timeout     = $TimeoutSeconds
+            grace       = $GraceSeconds
+        } | ConvertTo-Json
+        $newCheck = Invoke-RestMethod -Uri $ApiUrl -Headers $Headers -Method POST -Body $body
+        if ($newCheck) {
+            Write-Host "✅ Created new check '$CheckName'."
+            Return $newCheck
+        } else {
+            Write-Error "❌ Failed to create check."
+            Return $null
+        }
+    }
 }
 ######################
 ## Main Procedure
@@ -134,8 +173,11 @@ $settings = CSVSettingsLoad $csvFile
 # Default settings
 $settings_updated = $false
 if ($null -eq $settings.hc_svr)     {$settings.hc_svr     = "<Replace with server url: https://healthchecks.io>"; $settings_updated = $true}
-if ($null -eq $settings.hc_pingkey) {$settings.hc_pingkey = "<Replace with pingkey: Project > Settings > API > Ping key (e.g. B2LSAFFRDm3D_DcZ9q4RyZ)"; $settings_updated = $true}
+if ($null -eq $settings.hc_pingkey) {$settings.hc_pingkey = "<Replace with pingkey: Project > Settings > API > Ping key (e.g. B2LSAFxxxxxxxxxxxx4RyZ)"; $settings_updated = $true}
+if ($null -eq $settings.hc_apikey)  {$settings.hc_apikey  = "<Replace with apikey: Project > Settings > API > api key (e.g. NMOPKxxxxxxxxxxxx438xh)"; $settings_updated = $true}
 if ($null -eq $settings.hc_test)    {$settings.hc_test    = "TestName"; $settings_updated = $true}
+if ($null -eq $settings.TimeoutSeconds)  {$settings.TimeoutSeconds  = 2*60*60; $settings_updated = $true} # 2 hours
+if ($null -eq $settings.GraceSeconds)    {$settings.GraceSeconds    = 10*60; $settings_updated = $true} # 10 minutes
 if ($settings_updated) {$retVal = CSVSettingsSave $settings $csvFile; Write-Host "Initialized - $($retVal)"}
 # Show Settings
 Write-Host "      File: $(Split-Path $csvFile -Leaf) [Your settings file - edit if needed]"
@@ -165,7 +207,7 @@ if ($mode -eq "menu")
         }
         else {
             # Save Settings
-            $hc_slug = SlugNameCleanUp($hc_slug)
+            $hc_slug = SlugNameCleanUp $hc_slug 
             $settings.hc_test = $hc_slug
             $retVal = CSVSettingsSave $settings $csvFile
         }
@@ -183,6 +225,12 @@ if ($mode -eq "menu")
             break
         }
         #
+        $test = TestHealthCheckCreate -BaseUrl $settings.hc_svr -ApiKey $settings.hc_apikey -CheckName $hc_slug -Description "Created by HealthChecksUpdate.ps1 [$($env:USERNAME) on $($env:COMPUTERNAME) at $(Get-Date -Format "yyyy-MM-dd")]" -TimeoutSeconds $settings.TimeoutSeconds -GraceSeconds $settings.GraceSeconds
+        if ($null -eq $test) {
+            Write-Warning "Couldn't create or find test. Check your settings."
+            Start-Sleep 2
+            break
+        }
         $result = HealthChecksPing -hc_url $hc_url -hc_action $hc_action -hc_msg $hc_msg -Create
         LogMsg $result -ShowMsg
         Start-Sleep 2

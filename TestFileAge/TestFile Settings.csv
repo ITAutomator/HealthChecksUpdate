@@ -25,5 +25,3 @@ launcher_on_fail,FALSE
 launcher_on_ok,TRUE
 launcher_onlyonstatuschange,FALSE
 File_every_n_mins,10
-SettingsFileCreatedBy,PC-JS2\JasonSimotas
-SettingsFileCreatedDate,4/8/2025
