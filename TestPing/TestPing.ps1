@@ -238,9 +238,21 @@ Do
         } # launch_ps1 empty
         if ($bLaunchIndicated) {
             if (-not (Test-Path($settings.launch_ps1))) {
-                $bLaunchIndicated = $false
-                $msg4 = " [Launcher supressed: file not found: $($settings.launch_ps1)]"
-                $bShowLogMsg = $true
+                # check for ps1 in parent directory of this script, with the filename of settings.launch_ps1
+                $TestDir = Split-Path -Parent $scriptdir
+                $TestFil = Split-Path -Leaf $settings.launch_ps1
+                $TestPath = Join-Path $TestDir $TestFil
+                if (Test-Path $TestPath) {
+                    $settings.launch_ps1 = $TestPath
+                    $retVal = CSVSettingsSave $settings $csvFile; Write-Host "Saved - $($retVal)"
+                    $msg4 = " [Launcher updated: found in parent directory: $($settings.launch_ps1)]"
+                    $bShowLogMsg = $true
+                }
+                else {
+                    $bLaunchIndicated = $false
+                    $msg4 = " [Launcher supressed: file not found: $($settings.launch_ps1)]"
+                    $bShowLogMsg = $true
+                }
             }
         } # launch_ps1 bad path
         #endregion: bLaunchIndicated

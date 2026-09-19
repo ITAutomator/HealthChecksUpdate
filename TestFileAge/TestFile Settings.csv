@@ -20,7 +20,7 @@ launch_param9_name,
 launch_param9_value,
 launch_ps1,C:\HealthChecksUpdate\HealthChecksUpdate.ps1
 launcher_active,TRUE
-launcher_hidewindow,FALSE
+launcher_hidewindow,TRUE
 launcher_on_fail,FALSE
 launcher_on_ok,TRUE
 launcher_onlyonstatuschange,FALSE
